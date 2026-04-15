@@ -1,0 +1,41 @@
+<section class="dashboard">
+  <div class="container">
+
+    <h1>Panel Admin</h1>
+
+    <div class="cards">
+
+      <a routerLink="/admin/orders" class="card">
+        <h3>Pedidos</h3>
+        <p>{{ totalOrders }}</p>
+        <span>Ver pedidos →</span>
+      </a>
+
+      <a routerLink="/admin/products" class="card">
+        <h3>Productos</h3>
+        <p>{{ totalProducts }}</p>
+        <span>Gestionar →</span>
+      </a>
+
+      <a routerLink="/admin/categories" class="card">
+        <h3>Categorías</h3>
+        <p>{{ totalCategories }}</p>
+        <span>Administrar →</span>
+      </a>
+
+      <div class="card revenue">
+        <h3>Ingresos</h3>
+        <p>{{ formatPrice(totalRevenue) }}</p>
+        <span>Total generado</span>
+      </div>
+
+    </div>
+
+    <!-- 🔥 ACCIONES RÁPIDAS -->
+    <div class="quick-actions">
+      <a routerLink="/admin/products" class="btn">+ Nuevo Producto</a>
+      <a routerLink="/admin/categories" class="btn secondary">+ Nueva Categoría</a>
+    </div>
+
+  </div>
+</section>

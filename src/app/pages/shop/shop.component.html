@@ -1,0 +1,157 @@
+<section class="shop-page">
+  <div class="shop-page__container">
+    <header class="shop-page__header">
+      <div>
+        <p class="shop-page__eyebrow">Tienda</p>
+        <h1 class="shop-page__title">Encontrá productos para tu compra</h1>
+        <p class="shop-page__subtitle">
+          Explorá el catálogo, filtrá por categoría y agregá productos al carrito.
+        </p>
+      </div>
+    </header>
+
+    <div class="shop-page__alerts">
+      <div class="shop-page__alert shop-page__alert--success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <div class="shop-page__alert shop-page__alert--error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+    </div>
+
+    <section class="shop-toolbar">
+      <div class="shop-toolbar__search">
+        <app-search-bar
+          [placeholder]="'Buscar por nombre, descripción o categoría...'"
+          [value]="searchTerm"
+          (valueChange)="onSearchChange($event)"
+          (search)="onSearch($event)">
+        </app-search-bar>
+      </div>
+
+      <div class="shop-toolbar__sort">
+        <label for="sortBy">Ordenar por</label>
+        <select id="sortBy" [value]="sortBy" (change)="onSortChange($event)">
+          <option value="recent">Más recientes</option>
+          <option value="priceAsc">Precio: menor a mayor</option>
+          <option value="priceDesc">Precio: mayor a menor</option>
+          <option value="nameAsc">Nombre: A-Z</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="shop-categories">
+      <div class="shop-categories__top">
+        <h2>Categorías</h2>
+
+        <button
+          *ngIf="hasActiveFilters"
+          type="button"
+          class="shop-categories__clear"
+          (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      </div>
+
+      <app-loading-spinner *ngIf="loadingCategories"></app-loading-spinner>
+
+      <app-category-list
+        *ngIf="!loadingCategories"
+        [categories]="categories"
+        [selectedCategory]="selectedCategory"
+        (categorySelected)="onCategorySelected($event)">
+      </app-category-list>
+    </section>
+
+    <section class="shop-results">
+      <div class="shop-results__top">
+        <p>
+          <strong>{{ filteredProducts.length }}</strong>
+          {{ filteredProducts.length === 1 ? 'producto encontrado' : 'productos encontrados' }}
+        </p>
+      </div>
+
+      <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+      <div class="shop-empty" *ngIf="!loading && filteredProducts.length === 0">
+        <h3>No encontramos productos</h3>
+        <p>Probá con otra búsqueda o quitá algunos filtros.</p>
+
+        <button type="button" class="shop-empty__button" (click)="clearFilters()">
+          Ver todos
+        </button>
+      </div>
+
+      <div class="products-grid" *ngIf="!loading && filteredProducts.length > 0">
+        <article
+          class="product-card"
+          *ngFor="let product of filteredProducts; trackBy: trackByProduct">
+
+          <div class="product-card__badge-wrap">
+            <span
+              class="product-card__badge product-card__badge--cart"
+              *ngIf="isProductInCart(product._id)">
+              En carrito ({{ getProductQuantity(product._id) }})
+            </span>
+
+            <span
+              class="product-card__badge product-card__badge--stockout"
+              *ngIf="product.stock <= 0">
+              Sin stock
+            </span>
+          </div>
+
+          <a class="product-card__image" [routerLink]="['/product', product._id]">
+            <img [src]="getImageUrl(product.image)" [alt]="product.name" />
+          </a>
+
+          <div class="product-card__body">
+            <p class="product-card__category">
+              {{ getCategoryName(product) }}
+            </p>
+
+            <h3 class="product-card__title">
+              {{ product.name }}
+            </h3>
+
+            <p class="product-card__description">
+              {{ product.description || 'Producto disponible en la tienda.' }}
+            </p>
+
+            <div class="product-card__meta">
+              <span class="product-card__price">{{ formatPrice(product.price) }}</span>
+
+              <span
+                class="product-card__stock"
+                [class.product-card__stock--danger]="product.stock <= 0">
+                {{ product.stock > 0 ? ('Stock: ' + product.stock) : 'No disponible' }}
+              </span>
+            </div>
+
+            <div class="product-card__actions">
+              <a class="btn btn--ghost" [routerLink]="['/product', product._id]">
+                Ver detalle
+              </a>
+
+              <button
+                class="btn"
+                type="button"
+                [ngClass]="isProductInCart(product._id) ? 'btn--success' : 'btn--primary'"
+                [disabled]="product.stock <= 0"
+                (click)="addToCart(product)">
+                {{
+                  product.stock <= 0
+                    ? 'No disponible'
+                    : (isProductInCart(product._id)
+                        ? 'Agregar más (' + getProductQuantity(product._id) + ')'
+                        : 'Agregar')
+                }}
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</section>

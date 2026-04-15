@@ -1,0 +1,18 @@
+<div class="category-list">
+  <button
+    type="button"
+    class="category-list__item"
+    [class.category-list__item--active]="selectedCategory === ''"
+    (click)="selectAll()">
+    Todos
+  </button>
+
+  <button
+    type="button"
+    class="category-list__item"
+    *ngFor="let category of categories"
+    [class.category-list__item--active]="selectedCategory === category._id"
+    (click)="selectCategory(category._id)">
+    {{ category.name }}
+  </button>
+</div>

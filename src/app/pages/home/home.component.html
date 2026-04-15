@@ -1,0 +1,59 @@
+<app-home-carousel></app-home-carousel>
+
+<section class="section section--products">
+  <div class="section__header">
+    <div>
+      <h2>Selección destacada</h2>
+      <p class="section__subtitle">
+        Elegidos para representar lo mejor de la tienda.
+      </p>
+    </div>
+
+    <a routerLink="/shop">Ir a tienda</a>
+  </div>
+
+  <ng-container *ngIf="featuredProducts && featuredProducts.length > 0; else noFeaturedProducts">
+    <div class="product-grid">
+      <app-product-card
+        *ngFor="let product of featuredProducts; trackBy: trackByProduct"
+        [product]="product">
+      </app-product-card>
+    </div>
+  </ng-container>
+
+  <ng-template #noFeaturedProducts>
+    <div class="home-empty-products">
+      <h3>No hay productos destacados todavía</h3>
+      <p>
+        Marcá productos como destacados desde el panel de administración para que aparezcan acá.
+      </p>
+      <a routerLink="/shop" class="btn btn--primary">Ver tienda</a>
+    </div>
+  </ng-template>
+</section>
+
+<section class="section section--banner">
+  <div class="promo-banner">
+    <div class="promo-banner__content">
+      <span class="promo-banner__mini">Selección de la tienda</span>
+      <h2>Descubrí productos elegidos para destacar la identidad de la marca</h2>
+      <p>
+        Explorá la colección, elegí tus favoritos y armá tu pedido desde cualquier dispositivo.
+      </p>
+      <a routerLink="/shop" class="btn btn--primary">Explorar colección</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--benefits">
+  <div class="section__header section__header--center">
+    <h2>Por qué elegirnos</h2>
+  </div>
+
+  <div class="benefits-grid">
+    <article class="benefit-card" *ngFor="let benefit of benefits">
+      <h3>{{ benefit.title }}</h3>
+      <p>{{ benefit.text }}</p>
+    </article>
+  </div>
+</section>

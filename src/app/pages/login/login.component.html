@@ -1,0 +1,68 @@
+<section class="login-page">
+  <div class="login-page__container">
+    <div class="login-page__visual">
+      <span class="login-page__badge">Abeja Store</span>
+      <h1>Ingresá a tu cuenta</h1>
+      <p>
+        Accedé para ver tus pedidos, continuar tu compra y disfrutar una
+        experiencia más rápida desde cualquier dispositivo.
+      </p>
+
+      <div class="login-page__visual-card">
+        <h3>Compra simple</h3>
+        <p>Entrá, elegí tus prendas y finalizá tu pedido en pocos pasos.</p>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card__header">
+        <h2>Bienvenido</h2>
+        <p>Completá tus datos para ingresar</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="submit()" class="login-form" *ngIf="!loading; else loadingTpl">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="correo@ejemplo.com"
+          />
+          <small class="error" *ngIf="email?.touched && email?.invalid">
+            Ingresá un email válido.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="********"
+          />
+          <small class="error" *ngIf="password?.touched && password?.invalid">
+            La contraseña debe tener al menos 6 caracteres.
+          </small>
+        </div>
+
+        <div class="login-form__extra">
+          <a routerLink="/register">¿No tenés cuenta? Crear cuenta</a>
+        </div>
+
+        <div class="alert alert--error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <button type="submit" class="login-form__button">
+          Ingresar
+        </button>
+      </form>
+
+      <ng-template #loadingTpl>
+        <app-loading-spinner text="Ingresando..."></app-loading-spinner>
+      </ng-template>
+    </div>
+  </div>
+</section>

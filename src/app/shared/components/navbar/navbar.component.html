@@ -1,0 +1,67 @@
+<header class="navbar">
+  <div class="navbar__container">
+    <a routerLink="/" class="navbar__brand" (click)="closeMenu()">
+      <span class="navbar__brand-dot"></span>
+      Abeja Store
+    </a>
+
+    <nav class="navbar__desktop">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+      <a routerLink="/shop" routerLinkActive="active">Tienda</a>
+
+      <a
+        routerLink="/cart"
+        class="navbar__cart navbar__cart--desktop"
+        [class.navbar__cart--active]="hasCartItems()"
+        routerLinkActive="active"
+      >
+        <span class="navbar__cart-icon">🛒</span>
+        <span class="navbar__cart-text">Carrito</span>
+
+        <span class="navbar__cart-badge" *ngIf="hasCartItems()">
+          {{ getCartCount() }}
+        </span>
+      </a>
+
+      <a *ngIf="isAdmin" routerLink="/admin/dashboard" routerLinkActive="active">
+        Admin
+      </a>
+
+      <a routerLink="/login" routerLinkActive="active">Ingresar</a>
+    </nav>
+
+    <div class="navbar__actions">
+      <a
+        routerLink="/cart"
+        class="navbar__cart navbar__cart--icon"
+        [class.navbar__cart--active]="hasCartItems()"
+        aria-label="Carrito"
+      >
+        <span class="navbar__cart-icon">🛒</span>
+
+        <span class="navbar__cart-badge navbar__cart-badge--mobile" *ngIf="hasCartItems()">
+          {{ getCartCount() }}
+        </span>
+      </a>
+
+      <button class="navbar__menu-btn" type="button" (click)="toggleMenu()" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="navbar__mobile" [class.navbar__mobile--open]="menuOpen">
+    <a routerLink="/" (click)="closeMenu()">Inicio</a>
+    <a routerLink="/shop" (click)="closeMenu()">Tienda</a>
+    <a routerLink="/cart" (click)="closeMenu()">Carrito</a>
+
+    <a *ngIf="isAdmin" routerLink="/admin/dashboard" (click)="closeMenu()">
+      Admin
+    </a>
+
+    <a routerLink="/login" (click)="closeMenu()">Ingresar</a>
+    <a routerLink="/register" (click)="closeMenu()">Crear cuenta</a>
+  </div>
+</header>

@@ -1,0 +1,185 @@
+<section class="checkout-page">
+  <div class="checkout-page__container">
+    <header class="checkout-page__header">
+      <div>
+        <p class="checkout-page__eyebrow">Checkout</p>
+        <h1 class="checkout-page__title">Finalizá tu compra</h1>
+        <p class="checkout-page__subtitle">
+          Completá tus datos, revisá tu pedido y confirmá la compra de forma clara y segura.
+        </p>
+      </div>
+
+      <a routerLink="/cart" class="checkout-page__back">
+        ← Volver al carrito
+      </a>
+    </header>
+
+    <div class="checkout-page__alerts">
+      <div class="checkout-alert checkout-alert--success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <div class="checkout-alert checkout-alert--error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+    </div>
+
+    <app-loading-spinner *ngIf="loading" text="Confirmando pedido..."></app-loading-spinner>
+
+    <section class="checkout-layout" *ngIf="!loading">
+      <div class="checkout-main">
+        <div class="checkout-card checkout-card--form">
+          <div class="checkout-card__head">
+            <div>
+              <p class="checkout-card__eyebrow">Datos del cliente</p>
+              <h2>Información de contacto</h2>
+            </div>
+          </div>
+
+          <div class="checkout-security">
+            <div class="checkout-security__item">
+              <span class="checkout-security__icon">🔒</span>
+              <span>Compra protegida</span>
+            </div>
+
+            <div class="checkout-security__item">
+              <span class="checkout-security__icon">✓</span>
+              <span>Pedido confirmado con tu cuenta</span>
+            </div>
+
+            <div class="checkout-security__item checkout-security__cards">
+              <span>💳</span>
+              <span>Visa</span>
+              <span>Mastercard</span>
+              <span>Amex</span>
+            </div>
+          </div>
+
+          <div class="checkout-form">
+            <div class="checkout-form__grid">
+              <div class="form-field">
+                <label for="name">Nombre completo *</label>
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="Tu nombre"
+                  [(ngModel)]="customer.name"
+                />
+              </div>
+
+              <div class="form-field">
+                <label for="phone">WhatsApp / Teléfono *</label>
+                <input
+                  id="phone"
+                  type="text"
+                  placeholder="Ej: 11 2345 6789"
+                  [(ngModel)]="customer.phone"
+                />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="address">Dirección</label>
+              <input
+                id="address"
+                type="text"
+                placeholder="Calle, número, piso, localidad"
+                [(ngModel)]="customer.address"
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="notes">Notas del pedido</label>
+              <textarea
+                id="notes"
+                rows="5"
+                placeholder="Indicaciones adicionales, referencia de entrega, horario, etc."
+                [(ngModel)]="customer.notes">
+              </textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkout-card checkout-card--summary">
+          <div class="checkout-card__head">
+            <div>
+              <p class="checkout-card__eyebrow">Resumen</p>
+              <h2>Tu pedido</h2>
+            </div>
+
+            <span class="checkout-summary__count">
+              {{ totalItems }} {{ totalItems === 1 ? 'producto' : 'productos' }}
+            </span>
+          </div>
+
+          <div class="checkout-items" *ngIf="cartItems.length > 0">
+            <article class="checkout-item" *ngFor="let item of cartItems">
+              <div class="checkout-item__image">
+                <img [src]="getImageUrl(item.image)" [alt]="item.name" />
+              </div>
+
+              <div class="checkout-item__content">
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.quantity }} x {{ formatPrice(item.price) }}</p>
+              </div>
+
+              <strong class="checkout-item__total">
+                {{ formatPrice(getLineTotal(item)) }}
+              </strong>
+            </article>
+          </div>
+
+          <div class="checkout-empty" *ngIf="cartItems.length === 0">
+            No hay productos en el carrito.
+          </div>
+        </div>
+      </div>
+
+      <aside class="checkout-sidebar">
+        <div class="checkout-card checkout-card--sticky">
+          <div class="checkout-card__head">
+            <div>
+              <p class="checkout-card__eyebrow">Pago</p>
+              <h2>Total de la compra</h2>
+            </div>
+          </div>
+
+          <div class="checkout-totals">
+            <div class="checkout-totals__row">
+              <span>Subtotal</span>
+              <strong>{{ formatPrice(subtotal) }}</strong>
+            </div>
+
+            <div class="checkout-totals__row">
+              <span>Envío</span>
+              <strong>{{ shipping === 0 ? 'A coordinar' : formatPrice(shipping) }}</strong>
+            </div>
+
+            <div class="checkout-totals__row checkout-totals__row--final">
+              <span>Total</span>
+              <strong>{{ formatPrice(total) }}</strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="checkout-submit"
+            [disabled]="cartItems.length === 0 || loading"
+            (click)="confirmOrder()">
+            Confirmar pedido
+          </button>
+
+          <p class="checkout-note">
+            Al confirmar, tu pedido se registra con tu cuenta y se prepara el contacto por WhatsApp.
+          </p>
+
+          <div class="checkout-trust-box">
+            <div>🔒 Entorno de compra confiable</div>
+            <div>✓ Confirmación clara del pedido</div>
+            <div>💬 Continuación por WhatsApp</div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+</section>

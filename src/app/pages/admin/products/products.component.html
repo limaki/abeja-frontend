@@ -1,0 +1,269 @@
+<section class="admin-products">
+  <div class="admin-products__container">
+    <header class="admin-products__header">
+      <div>
+        <p class="admin-products__eyebrow">Panel admin</p>
+        <h1 class="admin-products__title">Gestión de productos</h1>
+        <p class="admin-products__subtitle">
+          Administrá productos con más orden: buscá, filtrá, editá y controlá stock y destacados.
+        </p>
+      </div>
+    </header>
+
+    <div class="admin-products__stats">
+      <div class="stat-box">
+        <span class="stat-box__label">Total</span>
+        <strong class="stat-box__value">{{ getTotalProducts() }}</strong>
+      </div>
+
+      <div class="stat-box">
+        <span class="stat-box__label">Destacados</span>
+        <strong class="stat-box__value">{{ getFeaturedCount() }}</strong>
+      </div>
+
+      <div class="stat-box">
+        <span class="stat-box__label">Sin stock</span>
+        <strong class="stat-box__value">{{ getOutOfStockCount() }}</strong>
+      </div>
+    </div>
+
+    <div class="admin-products__alerts">
+      <div class="admin-products__alert admin-products__alert--success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <div class="admin-products__alert admin-products__alert--error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+    </div>
+
+    <section class="admin-panel admin-panel--form">
+      <div class="admin-panel__head">
+        <div>
+          <p class="admin-panel__eyebrow">Formulario</p>
+          <h2>{{ editingId ? 'Editar producto' : 'Nuevo producto' }}</h2>
+        </div>
+
+        <span class="panel-badge" [class.panel-badge--editing]="editingId">
+          {{ editingId ? 'Editando' : 'Nuevo' }}
+        </span>
+      </div>
+
+      <div class="product-form">
+        <div class="product-form__grid">
+          <div class="product-form__field">
+            <label for="name">Nombre</label>
+            <input id="name" type="text" [(ngModel)]="form.name" placeholder="Ej: Remera básica" />
+          </div>
+
+          <div class="product-form__field">
+            <label for="category">Categoría</label>
+            <select id="category" [(ngModel)]="form.category">
+              <option value="">Seleccionar categoría</option>
+              <option *ngFor="let c of categories" [value]="c._id">
+                {{ c.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="product-form__field">
+          <label for="description">Descripción</label>
+          <textarea
+            id="description"
+            rows="4"
+            [(ngModel)]="form.description"
+            placeholder="Descripción del producto">
+          </textarea>
+        </div>
+
+        <div class="product-form__grid product-form__grid--small">
+          <div class="product-form__field">
+            <label for="price">Precio</label>
+            <input id="price" type="number" [(ngModel)]="form.price" />
+          </div>
+
+          <div class="product-form__field">
+            <label for="stock">Stock</label>
+            <input id="stock" type="number" [(ngModel)]="form.stock" />
+          </div>
+        </div>
+
+        <label class="product-check">
+          <input type="checkbox" [(ngModel)]="form.featured" />
+          <span>Marcar como producto destacado</span>
+        </label>
+
+        <div class="product-form__field">
+          <label>Imagen</label>
+          <label class="product-upload">
+            <span>{{ selectedFile ? selectedFile.name : 'Seleccionar imagen' }}</span>
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+          </label>
+        </div>
+
+        <div class="product-preview" *ngIf="imagePreview">
+          <img [src]="imagePreview" alt="Preview" />
+        </div>
+
+        <div class="product-form__actions">
+          <button class="btn btn--primary" type="button" (click)="submit()">
+            {{ editingId ? 'Actualizar producto' : 'Crear producto' }}
+          </button>
+
+          <button
+            *ngIf="editingId"
+            class="btn btn--secondary"
+            type="button"
+            (click)="resetForm()">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-panel admin-panel--filters">
+      <div class="admin-panel__head">
+        <div>
+          <p class="admin-panel__eyebrow">Organización</p>
+          <h2>Búsqueda y filtros</h2>
+        </div>
+
+        <span class="panel-count">{{ filteredProducts.length }} resultado(s)</span>
+      </div>
+
+      <div class="filters-grid">
+        <div class="filter-field filter-field--search">
+          <label for="search">Buscar</label>
+          <input
+            id="search"
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Nombre, descripción o categoría"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filterCategory">Categoría</label>
+          <select id="filterCategory" [(ngModel)]="selectedCategoryFilter">
+            <option value="">Todas</option>
+            <option *ngFor="let c of categories" [value]="c._id">
+              {{ c.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filterFeatured">Destacado</label>
+          <select id="filterFeatured" [(ngModel)]="selectedFeaturedFilter">
+            <option value="all">Todos</option>
+            <option value="featured">Solo destacados</option>
+            <option value="notFeatured">No destacados</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filterStock">Stock</label>
+          <select id="filterStock" [(ngModel)]="selectedStockFilter">
+            <option value="all">Todos</option>
+            <option value="inStock">Con stock</option>
+            <option value="outOfStock">Sin stock</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="sortBy">Ordenar por</label>
+          <select id="sortBy" [(ngModel)]="sortBy">
+            <option value="recent">Más recientes</option>
+            <option value="nameAsc">Nombre A-Z</option>
+            <option value="priceAsc">Precio menor</option>
+            <option value="priceDesc">Precio mayor</option>
+            <option value="stockAsc">Stock menor</option>
+            <option value="stockDesc">Stock mayor</option>
+          </select>
+        </div>
+
+        <div class="filters-actions">
+          <button class="btn btn--secondary" type="button" (click)="clearFilters()">
+            Limpiar filtros
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-panel admin-panel--list">
+      <div class="admin-panel__head">
+        <div>
+          <p class="admin-panel__eyebrow">Listado</p>
+          <h2>Productos cargados</h2>
+        </div>
+      </div>
+
+      <div class="products-empty" *ngIf="!loading && filteredProducts.length === 0">
+        No se encontraron productos con los filtros actuales.
+      </div>
+
+      <div class="products-table-wrap" *ngIf="!loading && filteredProducts.length > 0">
+        <table class="products-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Destacado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let p of filteredProducts; trackBy: trackByProduct">
+              <td>
+                <div class="product-cell">
+                  <img [src]="getImageUrl(p.image)" [alt]="p.name" class="product-cell__thumb" />
+
+                  <div class="product-cell__info">
+                    <strong>{{ p.name }}</strong>
+                    <span>{{ p.description || 'Sin descripción' }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>{{ getCategoryName(p) }}</td>
+              <td>{{ formatPrice(p.price) }}</td>
+
+              <td>
+                <span
+                  class="stock-pill"
+                  [class.stock-pill--danger]="p.stock <= 0">
+                  {{ p.stock }}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  class="featured-pill"
+                  [class.featured-pill--on]="p.featured"
+                  [class.featured-pill--off]="!p.featured">
+                  {{ p.featured ? 'Sí' : 'No' }}
+                </span>
+              </td>
+
+              <td>
+                <div class="table-actions">
+                  <button class="btn-table btn-table--edit" type="button" (click)="edit(p)">
+                    Editar
+                  </button>
+
+                  <button class="btn-table btn-table--delete" type="button" (click)="delete(p._id)">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</section>

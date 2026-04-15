@@ -1,0 +1,131 @@
+<section class="cart-page">
+  <div class="cart-page__container">
+    <header class="cart-page__header">
+      <div>
+        <p class="cart-page__eyebrow">Carrito</p>
+        <h1 class="cart-page__title">Tu selección</h1>
+        <p class="cart-page__subtitle">
+          Revisá tus productos antes de continuar con la compra.
+        </p>
+      </div>
+
+      <a routerLink="/shop" class="cart-page__continue">
+        Seguir comprando
+      </a>
+    </header>
+
+    <div class="cart-empty" *ngIf="cartItems.length === 0">
+      <div class="cart-empty__icon">🛍</div>
+      <h2>Tu carrito está vacío</h2>
+      <p>
+        Todavía no agregaste productos. Explorá la tienda y encontrá lo que querés llevar.
+      </p>
+
+      <a routerLink="/shop" class="cart-empty__button">
+        Ir a la tienda
+      </a>
+    </div>
+
+    <section class="cart-layout" *ngIf="cartItems.length > 0">
+      <div class="cart-items">
+        <article class="cart-item" *ngFor="let item of cartItems">
+          <a class="cart-item__image" [routerLink]="['/product', item._id]">
+            <img [src]="getImageUrl(item.image)" [alt]="item.name" />
+          </a>
+
+          <div class="cart-item__content">
+            <div class="cart-item__top">
+              <div>
+                <p class="cart-item__category">
+                  {{ item.category?.name || item.category || 'Colección' }}
+                </p>
+
+                <h3 class="cart-item__title">
+                  <a [routerLink]="['/product', item._id]">
+                    {{ item.name }}
+                  </a>
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                class="cart-item__remove"
+                (click)="removeItem(item._id)">
+                Eliminar
+              </button>
+            </div>
+
+            <p class="cart-item__price">
+              {{ formatPrice(item.price) }}
+            </p>
+
+            <div class="cart-item__bottom">
+              <app-quantity-selector
+                [quantity]="item.quantity"
+                [min]="1"
+                [max]="item.stock || 99"
+                (quantityChange)="onQuantityChange(item, $event)">
+              </app-quantity-selector>
+
+              <div class="cart-item__line-total">
+                <span>Total</span>
+                <strong>{{ formatPrice(getLineTotal(item)) }}</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="cart-summary">
+        <div class="cart-summary__card">
+          <div class="cart-summary__top">
+            <p class="cart-summary__eyebrow">Resumen</p>
+            <h2>Tu compra</h2>
+          </div>
+
+          <div class="cart-summary__rows">
+            <div class="cart-summary__row">
+              <span>Productos</span>
+              <strong>{{ totalItems }}</strong>
+            </div>
+
+            <div class="cart-summary__row">
+              <span>Subtotal</span>
+              <strong>{{ formatPrice(subtotal) }}</strong>
+            </div>
+
+            <div class="cart-summary__row">
+              <span>Envío</span>
+              <strong>{{ shipping === 0 ? 'A coordinar' : formatPrice(shipping) }}</strong>
+            </div>
+          </div>
+
+          <div class="cart-summary__total">
+            <span>Total</span>
+            <strong>{{ formatPrice(total) }}</strong>
+          </div>
+
+          <div class="cart-summary__actions">
+            <button
+              type="button"
+              class="cart-summary__checkout"
+              (click)="goToCheckout()">
+              Finalizar compra
+            </button>
+
+            <button
+              type="button"
+              class="cart-summary__clear"
+              (click)="clearCart()">
+              Vaciar carrito
+            </button>
+          </div>
+
+          <div class="cart-summary__note">
+            Tus productos quedan listos para continuar al checkout.
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+</section>

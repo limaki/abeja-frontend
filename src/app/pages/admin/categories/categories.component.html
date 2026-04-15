@@ -1,0 +1,151 @@
+<section class="admin-categories">
+  <div class="admin-categories__container">
+    <header class="admin-categories__header">
+      <div>
+        <p class="admin-categories__eyebrow">Panel admin</p>
+        <h1 class="admin-categories__title">Gestión de categorías</h1>
+        <p class="admin-categories__subtitle">
+          Organizá la tienda creando, editando y administrando categorías de forma simple.
+        </p>
+      </div>
+    </header>
+
+    <div class="admin-categories__alerts">
+      <div class="admin-categories__alert admin-categories__alert--success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <div class="admin-categories__alert admin-categories__alert--error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+    </div>
+
+    <section class="category-form-card">
+      <div class="category-form-card__head">
+        <div>
+          <p class="category-form-card__eyebrow">Formulario</p>
+          <h2>{{ editingId ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+        </div>
+
+        <span class="category-status-badge" [class.category-status-badge--editing]="editingId">
+          {{ editingId ? 'Editando' : 'Nueva' }}
+        </span>
+      </div>
+
+      <div class="category-form">
+        <div class="category-form__grid">
+          <div class="category-form__field">
+            <label for="name">Nombre</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Ej: Remeras"
+              [(ngModel)]="form.name"
+            />
+          </div>
+
+          <div class="category-form__field">
+            <label for="active">Estado</label>
+            <select id="active" [(ngModel)]="form.active">
+              <option [ngValue]="true">Activa</option>
+              <option [ngValue]="false">Inactiva</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="category-form__field">
+          <label for="description">Descripción</label>
+          <textarea
+            id="description"
+            rows="4"
+            placeholder="Breve descripción de la categoría"
+            [(ngModel)]="form.description">
+          </textarea>
+        </div>
+
+        <div class="category-form__actions">
+          <button class="btn btn--primary" type="button" (click)="submit()">
+            {{ editingId ? 'Actualizar categoría' : 'Crear categoría' }}
+          </button>
+
+          <button
+            *ngIf="editingId"
+            class="btn btn--secondary"
+            type="button"
+            (click)="resetForm()">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="category-list-card">
+      <div class="category-list-card__head">
+        <div>
+          <p class="category-list-card__eyebrow">Listado</p>
+          <h2>Categorías cargadas</h2>
+        </div>
+
+        <span class="category-count">{{ categories.length }} categorías</span>
+      </div>
+
+      <div class="category-empty" *ngIf="categories.length === 0">
+        No hay categorías cargadas todavía.
+      </div>
+
+      <div class="category-table-wrap" *ngIf="categories.length > 0">
+        <table class="category-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th class="category-table__actions-col">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let c of categories">
+              <td>
+                <div class="category-name-cell">
+                  <strong>{{ c.name }}</strong>
+                </div>
+              </td>
+
+              <td>
+                <span class="category-description">
+                  {{ c.description || 'Sin descripción' }}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  class="category-pill"
+                  [class.category-pill--active]="c.active"
+                  [class.category-pill--inactive]="!c.active">
+                  {{ c.active ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+
+              <td>
+                <div class="category-actions">
+                  <button class="btn-table btn-table--edit" type="button" (click)="edit(c)">
+                    Editar
+                  </button>
+
+                  <button class="btn-table btn-table--toggle" type="button" (click)="toggleActive(c)">
+                    {{ c.active ? 'Desactivar' : 'Activar' }}
+                  </button>
+
+                  <button class="btn-table btn-table--delete" type="button" (click)="delete(c._id)">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</section>
