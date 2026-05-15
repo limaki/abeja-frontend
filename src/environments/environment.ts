@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'httpS://abeja-backend-1.onrender.com/api/api'
+  apiUrl: 'https://abeja-backend-1.onrender.com/api'
 };
 
 // localhost:3000
