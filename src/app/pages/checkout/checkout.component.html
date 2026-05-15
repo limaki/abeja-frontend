@@ -87,7 +87,23 @@
                 [(ngModel)]="customer.address"
               />
             </div>
+            <div class="checkout-field">
+              <label for="shippingMethod">Método de envío</label>
 
+              <div class="checkout-select-wrap">
+                <select
+                  id="shippingMethod"
+                  [(ngModel)]="customer.shippingMethod"
+                  class="checkout-input checkout-select"
+                >
+                  <option *ngFor="let option of shippingOptions" [value]="option">
+                    {{ option }}
+                  </option>
+                </select>
+
+                <span class="checkout-select-wrap__icon">⌄</span>
+              </div>
+            </div>
             <div class="form-field">
               <label for="notes">Notas del pedido</label>
               <textarea

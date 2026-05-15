@@ -1,24 +1,89 @@
 <app-home-carousel></app-home-carousel>
 
+<section class="section section--categories">
+  <div class="section__header">
+    <div>
+      <h2 class="section__title-accent">Categorías</h2>
+    </div>
+
+    <a routerLink="/shop">Ver todo</a>
+  </div>
+
+  <app-loading-spinner
+    *ngIf="loadingCategories"
+    text="Cargando categorías...">
+  </app-loading-spinner>
+
+  <ng-container *ngIf="!loadingCategories">
+    <ng-container *ngIf="featuredCategories.length > 0; else noCategories">
+      <div class="category-grid">
+        <article
+          class="category-card"
+          *ngFor="let category of featuredCategories; trackBy: trackByCategory"
+          [routerLink]="['/shop']"
+          [queryParams]="{ category: category._id }">
+
+          <div class="category-card__image">
+            <img
+              [src]="category.image || 'assets/images/category-placeholder.jpg'"
+              [alt]="category.name" />
+          </div>
+
+          <div class="category-card__overlay">
+            <span class="category-card__mini">Colección</span>
+
+            <h3>{{ category.name }}</h3>
+
+            <p>
+              {{ category.description || 'Explorá los productos disponibles en esta categoría.' }}
+            </p>
+
+            <a
+              [routerLink]="['/shop']"
+              [queryParams]="{ category: category._id }"
+              (click)="$event.stopPropagation()">
+              Explorar
+            </a>
+          </div>
+        </article>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #noCategories>
+    <div class="home-empty-products">
+      <h3>No hay categorías cargadas todavía</h3>
+      <p>
+        Creá categorías desde el panel de administración para que aparezcan en el inicio.
+      </p>
+      <a routerLink="/shop" class="btn btn--primary">Ver tienda</a>
+    </div>
+  </ng-template>
+</section>
+
 <section class="section section--products">
   <div class="section__header">
     <div>
-      <h2>Selección destacada</h2>
-      <p class="section__subtitle">
-        Elegidos para representar lo mejor de la tienda.
-      </p>
+      <h2 class="section__title-accent">Selección destacada</h2>
     </div>
 
     <a routerLink="/shop">Ir a tienda</a>
   </div>
 
-  <ng-container *ngIf="featuredProducts && featuredProducts.length > 0; else noFeaturedProducts">
-    <div class="product-grid">
-      <app-product-card
-        *ngFor="let product of featuredProducts; trackBy: trackByProduct"
-        [product]="product">
-      </app-product-card>
-    </div>
+  <app-loading-spinner
+    *ngIf="loadingFeaturedProducts"
+    text="Cargando destacados...">
+  </app-loading-spinner>
+
+  <ng-container *ngIf="!loadingFeaturedProducts">
+    <ng-container *ngIf="featuredProducts.length > 0; else noFeaturedProducts">
+      <div class="product-grid">
+        <app-product-card
+          *ngFor="let product of featuredProducts; trackBy: trackByProduct"
+          [product]="product">
+        </app-product-card>
+      </div>
+    </ng-container>
   </ng-container>
 
   <ng-template #noFeaturedProducts>
@@ -35,7 +100,7 @@
 <section class="section section--banner">
   <div class="promo-banner">
     <div class="promo-banner__content">
-      <span class="promo-banner__mini">Selección de la tienda</span>
+      <span class="promo-banner__mini">Abeja Store</span>
       <h2>Descubrí productos elegidos para destacar la identidad de la marca</h2>
       <p>
         Explorá la colección, elegí tus favoritos y armá tu pedido desde cualquier dispositivo.
@@ -45,15 +110,87 @@
   </div>
 </section>
 
-<section class="section section--benefits">
-  <div class="section__header section__header--center">
-    <h2>Por qué elegirnos</h2>
-  </div>
+<section class="section section--presence">
+  <div class="presence-block">
+    <div class="presence-block__intro">
+      <span class="presence-block__eyebrow">Nuestra presencia</span>
+      <h2 class="presence-block__title">
+        Una marca con identidad, un espacio real y una experiencia cercana
+      </h2>
+      <p class="presence-block__lead">
+        En Abeja Modas creemos que una tienda también comunica quién es. Por eso
+        combinamos una propuesta visual cuidada, una selección pensada con criterio
+        y un local físico donde cada visita se siente parte de la experiencia.
+      </p>
+    </div>
 
-  <div class="benefits-grid">
-    <article class="benefit-card" *ngFor="let benefit of benefits">
-      <h3>{{ benefit.title }}</h3>
-      <p>{{ benefit.text }}</p>
-    </article>
+    <div class="presence-grid">
+      <div class="presence-card presence-card--story">
+        <div class="presence-card__content">
+          <span class="presence-card__mini">Quiénes somos</span>
+          <h3>No somos solo una tienda, somos una presencia real</h3>
+          <p>
+            Buscamos construir una identidad clara, cercana y reconocible, donde
+            cada producto tenga coherencia con la imagen de la marca y con la forma
+            en que queremos que nos recuerden.
+          </p>
+          <p>
+            Nuestro local físico nos permite estar presentes de verdad: recibir,
+            asesorar y sostener una experiencia más humana, sin perder la comodidad
+            de comprar online.
+          </p>
+        </div>
+      </div>
+
+      <div class="presence-card presence-card--image">
+        <img src="tienda img.png" alt="Local de Abeja Modas" />
+        <div class="presence-card__overlay">
+          <span>Local físico</span>
+          <strong>Abeja Modas</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="presence-location">
+      <div class="presence-location__info">
+        <span class="presence-location__mini">Ubicación</span>
+        <h3>Vení a conocernos</h3>
+
+        <div class="presence-location__rows">
+          <div class="presence-row">
+            <span class="presence-row__label">Dirección</span>
+            <p class="presence-row__value">Aranguren 2952</p>
+          </div>
+
+          <div class="presence-row">
+            <span class="presence-row__label">Horario</span>
+            <p class="presence-row__value">Lunes a sábado de 10:00 a 20:00 hs</p>
+          </div>
+
+          <div class="presence-row">
+            <span class="presence-row__label">Contacto</span>
+            <p class="presence-row__value">1139534427</p>
+          </div>
+        </div>
+
+        <a
+          class="presence-location__link"
+          href="https://maps.google.com/?q=Aranguren+2952"
+          target="_blank"
+          rel="noopener noreferrer">
+          Ver en Google Maps
+        </a>
+      </div>
+
+      <div class="presence-location__map">
+        <iframe
+          src="https://www.google.com/maps?q=Abeja+Modas+Aranguren+2952&output=embed"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Ubicación de Abeja Modas">
+        </iframe>
+      </div>
+    </div>
   </div>
 </section>

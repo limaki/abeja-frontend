@@ -1,8 +1,8 @@
 <header class="navbar">
   <div class="navbar__container">
     <a routerLink="/" class="navbar__brand" (click)="closeMenu()">
-      <span class="navbar__brand-dot"></span>
-      Abeja Store
+      <img src="logo.png" alt="Logo Abeja Modas" class="navbar__brand-logo" />
+      <span class="navbar__brand-text">Abeja Modas</span>
     </a>
 
     <nav class="navbar__desktop">
@@ -27,7 +27,18 @@
         Admin
       </a>
 
-      <a routerLink="/login" routerLinkActive="active">Ingresar</a>
+      <a *ngIf="!isLoggedIn" routerLink="/login" routerLinkActive="active">
+        Ingresar
+      </a>
+
+      <button
+        *ngIf="isLoggedIn"
+        type="button"
+        class="navbar__logout"
+        (click)="logout()"
+      >
+        Cerrar sesión
+      </button>
     </nav>
 
     <div class="navbar__actions">
@@ -61,7 +72,17 @@
       Admin
     </a>
 
-    <a routerLink="/login" (click)="closeMenu()">Ingresar</a>
-    <a routerLink="/register" (click)="closeMenu()">Crear cuenta</a>
+    <a *ngIf="!isLoggedIn" routerLink="/login" (click)="closeMenu()">
+      Ingresar
+    </a>
+
+    <button
+      *ngIf="isLoggedIn"
+      type="button"
+      class="navbar__mobile-logout"
+      (click)="logout()"
+    >
+      Cerrar sesión
+    </button>
   </div>
 </header>

@@ -106,8 +106,13 @@
   box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
 }
 
+/* =========================
+   CATEGORÍAS - FIXEADO
+   ========================= */
+
 .shop-categories {
   margin-bottom: 18px;
+  overflow: visible;
 }
 
 .shop-categories__top,
@@ -123,7 +128,8 @@
 .shop-categories__top h2 {
   margin: 0;
   color: #0f172a;
-  font-size: 1.15rem;
+  font-size: 1.35rem;
+  font-weight: 900;
 }
 
 .shop-categories__clear,
@@ -142,6 +148,58 @@
 .shop-empty__button:hover {
   transform: translateY(-1px);
 }
+
+/* Antes estaba con overflow-x y nombres cortados.
+   Ahora baja a varias filas y muestra nombres completos. */
+.shop-categories-scroll {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  overflow: visible;
+  padding: 0.25rem 0 0;
+}
+
+.shop-category-chip {
+  flex: 0 1 auto;
+  min-height: 50px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid #eadfca;
+  background: #ffffff;
+  color: #2f2f2f;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.2;
+  text-align: center;
+  max-width: none;
+  word-break: normal;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shop-category-chip:hover {
+  transform: translateY(-1px);
+  border-color: #facc15;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.shop-category-chip--active {
+  background: #facc15;
+  border-color: #facc15;
+  color: #111827;
+}
+
+/* =========================
+   RESULTADOS / PRODUCTOS
+   ========================= */
 
 .shop-results__top p {
   margin: 0;
@@ -181,7 +239,10 @@
   border-radius: 22px;
   overflow: hidden;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .product-card:hover {
@@ -322,7 +383,10 @@
   font-size: 0.94rem;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .btn:hover {
@@ -353,6 +417,10 @@
   box-shadow: 0 10px 22px rgba(34, 197, 94, 0.25);
 }
 
+/* =========================
+   RESPONSIVE
+   ========================= */
+
 @media (max-width: 900px) {
   .shop-toolbar {
     grid-template-columns: 1fr;
@@ -371,6 +439,28 @@
     border-radius: 18px;
   }
 
+  .shop-categories__top {
+    align-items: flex-start;
+  }
+
+  .shop-categories__top h2 {
+    font-size: 1.25rem;
+  }
+
+  .shop-categories-scroll {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .shop-category-chip {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.75rem 0.85rem;
+    border-radius: 18px;
+    font-size: 0.9rem;
+  }
+
   .products-grid {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -386,5 +476,11 @@
 
   .product-card__description {
     min-height: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .shop-categories-scroll {
+    grid-template-columns: 1fr;
   }
 }

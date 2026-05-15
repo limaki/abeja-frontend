@@ -165,81 +165,71 @@ export class ProductsComponent implements OnInit {
     this.sortBy = 'recent';
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
 
-    if (!file) return;
+  if (!file) return;
 
-    this.selectedFile = file;
+  this.selectedFile = file;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagePreview = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.imagePreview = reader.result as string;
+  };
+  reader.readAsDataURL(file);
+}
+
+ submit(): void {
+  this.errorMessage = '';
+  this.successMessage = '';
+
+  if (!this.form.name.trim()) {
+    this.errorMessage = 'El nombre del producto es obligatorio';
+    return;
   }
 
-  submit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    if (!this.form.name.trim()) {
-      this.errorMessage = 'El nombre del producto es obligatorio';
-      return;
-    }
-
-    if (!this.form.category) {
-      this.errorMessage = 'Seleccioná una categoría';
-      return;
-    }
-
-    if (Number(this.form.price) < 0) {
-      this.errorMessage = 'El precio no puede ser negativo';
-      return;
-    }
-
-    if (Number(this.form.stock) < 0) {
-      this.errorMessage = 'El stock no puede ser negativo';
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('name', this.form.name.trim());
-    formData.append('description', this.form.description.trim());
-    formData.append('price', String(this.form.price));
-    formData.append('stock', String(this.form.stock));
-    formData.append('category', this.form.category);
-    formData.append('featured', String(this.form.featured));
-
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
-    }
-
-    if (this.editingId) {
-      this.productService.updateProduct(this.editingId, formData).subscribe({
-        next: () => {
-          this.successMessage = 'Producto actualizado correctamente';
-          this.resetForm();
-          this.loadAll();
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'No se pudo actualizar el producto';
-        }
-      });
-    } else {
-      this.productService.createProduct(formData).subscribe({
-        next: () => {
-          this.successMessage = 'Producto creado correctamente';
-          this.resetForm();
-          this.loadAll();
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'No se pudo crear el producto';
-        }
-      });
-    }
+  if (!this.form.category) {
+    this.errorMessage = 'Seleccioná una categoría';
+    return;
   }
+
+  const formData = new FormData();
+  formData.append('name', this.form.name.trim());
+  formData.append('description', this.form.description.trim());
+  formData.append('price', String(this.form.price));
+  formData.append('stock', String(this.form.stock));
+  formData.append('category', this.form.category);
+  formData.append('featured', String(this.form.featured));
+
+  if (this.selectedFile) {
+    formData.append('image', this.selectedFile);
+  }
+
+  if (this.editingId) {
+    this.productService.updateProduct(this.editingId, formData).subscribe({
+      next: () => {
+        this.successMessage = 'Producto actualizado correctamente';
+        this.resetForm();
+        this.loadAll();
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.message || 'No se pudo actualizar el producto';
+      }
+    });
+  } else {
+    this.productService.createProduct(formData).subscribe({
+      next: () => {
+        this.successMessage = 'Producto creado correctamente';
+        this.resetForm();
+        this.loadAll();
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.message || 'No se pudo crear el producto';
+      }
+    });
+  }
+}
 
   edit(product: any): void {
     this.editingId = product._id;

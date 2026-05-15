@@ -52,13 +52,13 @@ export class ProductService {
     return this.http.get<ProductResponse>(`${this.apiUrl}/${id}`);
   }
 
-  createProduct(formData: FormData): Observable<ProductResponse> {
-    return this.http.post<ProductResponse>(this.apiUrl, formData);
-  }
+    createProduct(formData: FormData) {
+      return this.http.post<any>(this.apiUrl, formData);
+    }
 
-  updateProduct(id: string, formData: FormData): Observable<ProductResponse> {
-    return this.http.put<ProductResponse>(`${this.apiUrl}/${id}`, formData);
-  }
+    updateProduct(id: string, formData: FormData) {
+      return this.http.put<any>(`${this.apiUrl}/${id}`, formData);
+    }
 
   deactivateProduct(id: string): Observable<ProductResponse> {
     return this.http.patch<ProductResponse>(`${this.apiUrl}/${id}/deactivate`, {});

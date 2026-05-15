@@ -205,3 +205,60 @@
     opacity: 1;
   }
 }
+
+.navbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #1f1f1f;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.navbar__brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  object-fit: cover;
+  display: block;
+  background: #ffffff;
+  border: 1px solid #ece7d8;
+}
+
+.navbar__brand-text {
+  display: inline-block;
+}
+
+.navbar__logout,
+.navbar__mobile-logout {
+  border: none;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.navbar__logout {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+}
+
+.navbar__logout:hover,
+.navbar__mobile-logout:hover {
+  transform: translateY(-1px);
+}
+
+.navbar__mobile-logout {
+  display: block;
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 14px 0;
+  text-align: left;
+  border-top: 1px solid #f3efe3;
+  background: transparent;
+  border-radius: 0;
+}

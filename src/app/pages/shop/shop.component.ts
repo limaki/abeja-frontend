@@ -1,7 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
 
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
@@ -11,9 +10,7 @@ import { Product } from '../../core/models/product.model';
 import { Category } from '../../core/models/category.model';
 
 import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
-import { CategoryListComponent } from '../../shared/components/category-list/category-list.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-shop',
@@ -22,7 +19,6 @@ import { environment } from '../../../environments/environment';
     CommonModule,
     RouterLink,
     SearchBarComponent,
-    CategoryListComponent,
     LoadingSpinnerComponent
   ],
   templateUrl: './shop.component.html',
@@ -33,88 +29,92 @@ export class ShopComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private cartService = inject(CartService);
 
+  @ViewChild('productsSection') productsSection!: ElementRef<HTMLElement>;
+
   products: Product[] = [];
   filteredProducts: Product[] = [];
   categories: Category[] = [];
 
-  loading = true;
-  loadingCategories = true;
-  errorMessage = '';
+  loading = false;
+  loadingCategories = false;
+
   successMessage = '';
-  
-private readonly apiBaseUrl = environment.apiUrl.replace('/api', '');
+  errorMessage = '';
 
   searchTerm = '';
   selectedCategory = '';
-  sortBy: 'recent' | 'priceAsc' | 'priceDesc' | 'nameAsc' = 'recent';
+  sortBy = 'recent';
 
   ngOnInit(): void {
-    this.loadInitialData();
-  }
-
-  loadInitialData(): void {
     this.loadCategories();
     this.loadProducts();
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!this.searchTerm.trim() || !!this.selectedCategory || this.sortBy !== 'recent';
   }
 
   loadProducts(): void {
     this.loading = true;
     this.errorMessage = '';
 
-    this.productService
-      .getProducts({
-        active: true,
-        category: this.selectedCategory || undefined
-      })
-      .pipe(finalize(() => (this.loading = false)))
-      .subscribe({
-        next: (response) => {
-          this.products = response.products || [];
-          this.applyFilters();
-        },
-        error: () => {
-          this.products = [];
-          this.filteredProducts = [];
-          this.errorMessage = 'No se pudieron cargar los productos.';
-        }
-      });
+    this.productService.getProducts().subscribe({
+      next: (res: any) => {
+        this.products = res.products || [];
+        this.applyFilters();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('[SHOP] Error cargando productos:', err);
+        this.products = [];
+        this.filteredProducts = [];
+        this.errorMessage = err?.error?.message || 'No se pudieron cargar los productos';
+        this.loading = false;
+      }
+    });
   }
 
   loadCategories(): void {
     this.loadingCategories = true;
 
-    this.categoryService
-      .getCategories(true)
-      .pipe(finalize(() => (this.loadingCategories = false)))
-      .subscribe({
-        next: (response) => {
-          this.categories = response.categories || [];
-        },
-        error: () => {
-          this.categories = [];
-        }
-      });
+    this.categoryService.getCategories(true).subscribe({
+      next: (res: any) => {
+        this.categories = res.categories || [];
+        this.loadingCategories = false;
+      },
+      error: (err) => {
+        console.error('[SHOP] Error cargando categorías:', err);
+        this.categories = [];
+        this.loadingCategories = false;
+      }
+    });
   }
 
   onSearchChange(value: string): void {
-    this.searchTerm = value;
+    this.searchTerm = value || '';
     this.applyFilters();
   }
 
   onSearch(value: string): void {
-    this.searchTerm = value;
+    this.searchTerm = value || '';
     this.applyFilters();
+    this.scrollToProducts();
+  }
+
+  onSortChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.sortBy = select.value;
+    this.applyFilters();
+    this.scrollToProducts();
   }
 
   onCategorySelected(categoryId: string): void {
     this.selectedCategory = categoryId;
-    this.loadProducts();
-  }
-
-  onSortChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.sortBy = target.value as 'recent' | 'priceAsc' | 'priceDesc' | 'nameAsc';
     this.applyFilters();
+
+    setTimeout(() => {
+      this.scrollToProducts();
+    }, 80);
   }
 
   applyFilters(): void {
@@ -122,108 +122,188 @@ private readonly apiBaseUrl = environment.apiUrl.replace('/api', '');
 
     let result = [...this.products];
 
+    if (this.selectedCategory) {
+      result = result.filter((product) => {
+        const category = product.category as any;
+
+        if (!category) {
+          return false;
+        }
+
+        if (typeof category === 'string') {
+          return category === this.selectedCategory;
+        }
+
+        return category._id === this.selectedCategory;
+      });
+    }
+
     if (term) {
-      result = result.filter(product => {
+      result = result.filter((product) => {
+        const name = product.name?.toLowerCase() || '';
+        const description = product.description?.toLowerCase() || '';
         const categoryName = this.getCategoryName(product).toLowerCase();
 
         return (
-          product.name.toLowerCase().includes(term) ||
-          product.description.toLowerCase().includes(term) ||
+          name.includes(term) ||
+          description.includes(term) ||
           categoryName.includes(term)
         );
       });
     }
 
-    switch (this.sortBy) {
-      case 'priceAsc':
-        result.sort((a, b) => a.price - b.price);
-        break;
-
-      case 'priceDesc':
-        result.sort((a, b) => b.price - a.price);
-        break;
-
-      case 'nameAsc':
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-
-      case 'recent':
-      default:
-        result.sort((a, b) => {
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return dateB - dateA;
-        });
-        break;
-    }
+    result = this.sortProducts(result);
 
     this.filteredProducts = result;
   }
 
-  addToCart(product: Product): void {
-    if (product.stock <= 0) {
-      this.successMessage = '';
-      this.errorMessage = 'Este producto no tiene stock disponible.';
-      return;
+  sortProducts(products: Product[]): Product[] {
+    const sorted = [...products];
+
+    switch (this.sortBy) {
+      case 'priceAsc':
+        return sorted.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+
+      case 'priceDesc':
+        return sorted.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+
+      case 'nameAsc':
+        return sorted.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+      case 'recent':
+      default:
+        return sorted;
     }
-
-    this.cartService.addToCart(product, 1);
-    this.errorMessage = '';
-    this.successMessage = `"${product.name}" se agregó al carrito.`;
-
-    setTimeout(() => {
-      this.successMessage = '';
-    }, 2200);
   }
-
-  getCategoryName(product: Product): string {
-    if (!product.category) {
-      return 'Sin categoría';
-    }
-
-    if (typeof product.category === 'string') {
-      const found = this.categories.find(category => category._id === product.category);
-      return found?.name || 'Categoría';
-    }
-
-    return product.category.name || 'Categoría';
-  }
-
-
-getImageUrl(image: string | undefined | null): string {
-  if (!image) return 'https://placehold.co/500x600?text=Producto';
-  if (image.startsWith('http://') || image.startsWith('https://')) return image;
-  return `${this.apiBaseUrl}${image}`;
-}
 
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedCategory = '';
     this.sortBy = 'recent';
-    this.loadProducts();
+    this.applyFilters();
+
+    setTimeout(() => {
+      this.scrollToProducts();
+    }, 80);
   }
 
-  get hasActiveFilters(): boolean {
-    return !!this.searchTerm || !!this.selectedCategory || this.sortBy !== 'recent';
+  scrollToProducts(): void {
+    if (!this.productsSection?.nativeElement) {
+      return;
+    }
+
+    this.productsSection.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+
+  addToCart(product: Product): void {
+    if (!product || product.stock <= 0) {
+      return;
+    }
+
+    try {
+      const service: any = this.cartService;
+
+      if (typeof service.addToCart === 'function') {
+        service.addToCart(product, 1);
+      } else if (typeof service.addItem === 'function') {
+        service.addItem(product, 1);
+      } else if (typeof service.add === 'function') {
+        service.add(product, 1);
+      }
+
+      this.successMessage = 'Producto agregado al carrito';
+      this.errorMessage = '';
+
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 2200);
+    } catch (error) {
+      console.error('[SHOP] Error agregando al carrito:', error);
+      this.errorMessage = 'No se pudo agregar el producto al carrito';
+    }
+  }
+
+  isProductInCart(productId: string): boolean {
+    const quantity = this.getProductQuantity(productId);
+    return quantity > 0;
+  }
+
+  getProductQuantity(productId: string): number {
+    try {
+      const service: any = this.cartService;
+
+      if (typeof service.getProductQuantity === 'function') {
+        return Number(service.getProductQuantity(productId) || 0);
+      }
+
+      if (typeof service.getQuantity === 'function') {
+        return Number(service.getQuantity(productId) || 0);
+      }
+
+      if (typeof service.getItems === 'function') {
+        const items = service.getItems() || [];
+        const item = items.find((i: any) => {
+          const product = i.product || i;
+          return product?._id === productId || i.productId === productId;
+        });
+
+        return Number(item?.quantity || item?.qty || 0);
+      }
+
+      if (Array.isArray(service.items)) {
+        const item = service.items.find((i: any) => {
+          const product = i.product || i;
+          return product?._id === productId || i.productId === productId;
+        });
+
+        return Number(item?.quantity || item?.qty || 0);
+      }
+
+      return 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  getCategoryName(product: Product): string {
+    const category = product.category as any;
+
+    if (!category) {
+      return 'Sin categoría';
+    }
+
+    if (typeof category === 'string') {
+      const found = this.categories.find((c) => c._id === category);
+      return found?.name || 'Categoría';
+    }
+
+    return category.name || 'Categoría';
+  }
+
+  getImageUrl(image?: string): string {
+    if (!image) {
+      return 'assets/images/product-placeholder.jpg';
+    }
+
+    return image;
+  }
+
+  formatPrice(value: number): string {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      maximumFractionDigits: 0
+    }).format(Number(value || 0));
   }
 
   trackByProduct(index: number, product: Product): string {
     return product._id;
   }
 
-  formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0
-    }).format(price);
+  trackByCategory(index: number, category: Category): string {
+    return category._id;
   }
-
-  isProductInCart(productId: string): boolean {
-  return this.cartService.isInCart(productId);
-}
-
-getProductQuantity(productId: string): number {
-  return this.cartService.getQuantityInCart(productId);
-}
 }

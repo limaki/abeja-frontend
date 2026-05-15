@@ -56,15 +56,27 @@
 
       <app-loading-spinner *ngIf="loadingCategories"></app-loading-spinner>
 
-      <app-category-list
-        *ngIf="!loadingCategories"
-        [categories]="categories"
-        [selectedCategory]="selectedCategory"
-        (categorySelected)="onCategorySelected($event)">
-      </app-category-list>
+      <div class="shop-categories-scroll" *ngIf="!loadingCategories">
+        <button
+          type="button"
+          class="shop-category-chip"
+          [class.shop-category-chip--active]="!selectedCategory"
+          (click)="onCategorySelected('')">
+          Todos
+        </button>
+
+        <button
+          type="button"
+          class="shop-category-chip"
+          *ngFor="let category of categories; trackBy: trackByCategory"
+          [class.shop-category-chip--active]="selectedCategory === category._id"
+          (click)="onCategorySelected(category._id)">
+          {{ category.name }}
+        </button>
+      </div>
     </section>
 
-    <section class="shop-results">
+    <section class="shop-results" #productsSection>
       <div class="shop-results__top">
         <p>
           <strong>{{ filteredProducts.length }}</strong>
@@ -120,7 +132,9 @@
             </p>
 
             <div class="product-card__meta">
-              <span class="product-card__price">{{ formatPrice(product.price) }}</span>
+              <span class="product-card__price">
+                {{ formatPrice(product.price) }}
+              </span>
 
               <span
                 class="product-card__stock"

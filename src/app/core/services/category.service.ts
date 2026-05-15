@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { environment } from '../../../environments/environment';
 import { Category } from '../models/category.model';
 
@@ -13,6 +14,8 @@ interface CategoryResponse {
   ok: boolean;
   message?: string;
   category: Category;
+  errorName?: string;
+  detail?: string;
 }
 
 @Injectable({
@@ -23,32 +26,50 @@ export class CategoryService {
   private apiUrl = `${environment.apiUrl}/categories`;
 
   getCategories(active?: boolean): Observable<CategoriesResponse> {
-    let url = this.apiUrl;
+    console.log('[CATEGORY SERVICE] getCategories active:', active);
+    console.log('[CATEGORY SERVICE] URL:', this.apiUrl);
+
+    let params = new HttpParams();
 
     if (active !== undefined) {
-      url += `?active=${active}`;
+      params = params.set('active', String(active));
     }
 
-    return this.http.get<CategoriesResponse>(url);
+    return this.http.get<CategoriesResponse>(this.apiUrl, { params });
   }
 
   getCategoryById(id: string): Observable<CategoryResponse> {
+    console.log('[CATEGORY SERVICE] getCategoryById id:', id);
+    console.log('[CATEGORY SERVICE] URL:', `${this.apiUrl}/${id}`);
+
     return this.http.get<CategoryResponse>(`${this.apiUrl}/${id}`);
   }
 
-  createCategory(data: { name: string; description: string }): Observable<CategoryResponse> {
+  createCategory(data: FormData): Observable<CategoryResponse> {
+    console.log('[CATEGORY SERVICE] createCategory');
+    console.log('[CATEGORY SERVICE] URL:', this.apiUrl);
+
     return this.http.post<CategoryResponse>(this.apiUrl, data);
   }
 
-  updateCategory(id: string, data: { name?: string; description?: string; active?: boolean }): Observable<CategoryResponse> {
+  updateCategory(id: string, data: FormData): Observable<CategoryResponse> {
+    console.log('[CATEGORY SERVICE] updateCategory id:', id);
+    console.log('[CATEGORY SERVICE] URL:', `${this.apiUrl}/${id}`);
+
     return this.http.put<CategoryResponse>(`${this.apiUrl}/${id}`, data);
   }
 
   deactivateCategory(id: string): Observable<CategoryResponse> {
+    console.log('[CATEGORY SERVICE] deactivateCategory id:', id);
+    console.log('[CATEGORY SERVICE] URL:', `${this.apiUrl}/${id}/deactivate`);
+
     return this.http.patch<CategoryResponse>(`${this.apiUrl}/${id}/deactivate`, {});
   }
 
   deleteCategory(id: string): Observable<{ ok: boolean; message: string }> {
+    console.log('[CATEGORY SERVICE] deleteCategory id:', id);
+    console.log('[CATEGORY SERVICE] URL:', `${this.apiUrl}/${id}`);
+
     return this.http.delete<{ ok: boolean; message: string }>(`${this.apiUrl}/${id}`);
   }
 }
